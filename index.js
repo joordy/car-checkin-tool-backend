@@ -1,13 +1,22 @@
-require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const routesHandler = require('./routes/handler.js');
-// const corsMiddleware = require('./cors/index.js');
+const routesHandler = require('./old/routes/handler.js');
 const cors = require('cors');
-
-// const cors = require('cors');
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 8000; // backend routing port
+
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use('/', routesHandler);
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+
+// const corsMiddleware = require('./cors/index.js');
+// const cors = require('cors');
 
 // const allowedOrigins = [
 //   'http://localhost:3000',
@@ -32,15 +41,5 @@ const PORT = process.env.PORT || 8000; // backend routing port
 //     },
 //   })
 // );
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use('/', routesHandler);
 
 // app.use(express.static(path.resolve(__dirname, '../client/build')));
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
-
-console.log('hello world');

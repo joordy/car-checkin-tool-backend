@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "car-checkin-tool-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,9 +10,17 @@
     "client": "npm run start --prefix ../client",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joordy/car-checkin-tool-backend.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joordy/car-checkin-tool-backend/issues"
+  },
+  "homepage": "https://github.com/joordy/car-checkin-tool-backend#readme",
   "dependencies": {
     "@sendgrid/mail": "^7.4.4",
     "@stripe/stripe-js": "^1.15.0",
@@ -21,7 +29,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "node-fetch": "^2.6.1",
-    "stripe": "^8.150.0"
+    "stripe": "^8.154.0"
   },
   "devDependencies": {
     "dotenv": "^10.0.0"
