@@ -32,10 +32,10 @@ const PORT = process.env.PORT || 8000; // backend routing port
 //     },
 //   })
 // );
-// app.use(corsMiddleware);
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use('/', cors(), routesHandler);
+app.use('/', routesHandler);
 
 // app.use(express.static(path.resolve(__dirname, '../client/build')));
 
