@@ -1,0 +1,11 @@
+---
+application:
+  name: "car-checkin-tool-backend"
+  project: "car-backend"
+  organization: "QoveryCommunity"
+routers:
+- name: "main-car-checkin-tool-backend"
+  routes:
+  - application_name: "car-checkin-tool-backend"
+    paths:
+    - "/*"
