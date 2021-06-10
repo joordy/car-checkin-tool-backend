@@ -43,12 +43,7 @@ app.post('/api/create-payment-intent', postCreatePaymentIntent);
 async function getApi(req, res) {
   const cityRef = db.collection('server').doc('loggedInUser');
   const doc = await cityRef.get();
-  console.log(doc.date());
-  // const serverRef = db.collection('server').doc('files/loggedInUser');
-
-  // console.log('hier moet je zijn', serverRef);
-
-  console.log('test  test');
+  console.log(doc.data());
   res.json({
     status: 'succeeaad',
   });
@@ -63,7 +58,7 @@ async function getReservation(req, res) {
     } else {
       res.json(doc.data());
     }
-  }, 1000);
+  }, 100);
 }
 
 function getCarIndexKey(req, res) {
