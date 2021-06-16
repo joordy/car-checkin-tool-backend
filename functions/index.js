@@ -10,7 +10,7 @@ const fetch = require('node-fetch');
 const sgMail = require('@sendgrid/mail');
 const moment = require('moment');
 const cors = require('cors');
-sgMail.setApiKey('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');
+sgMail.setApiKey(functions.config().sendgrid.key);
 const stripe = require('stripe')(
   'sk_test_51IsTukJEAzd2OWuLk3FnSrJQnDxX3VuWZRtUIkCCvEBhK20GOantGHhar8kn1eqtYLtZ1qSX0hvVZ2lwyRWkCl5n002JbZmNr2'
 );
@@ -231,12 +231,14 @@ async function postCreateCheckin(req, res) {
 
 async function postData(url, data) {
   console.log('DEZE URL HEB IK NODIG', url);
+
+  const key = functions.config().wallet.key;
   const response = await fetch(url, {
     method: 'POST',
     mode: 'cors',
     credentials: 'same-origin',
     headers: {
-      Authorization: `Basic QmVoc0pHTGZtWUtjaHl0TWlweE14TElQa1RvWnlwZ0tBbGZLT0h4SUd5T0diZGNwdGFodklyZm1Eem1icGtNWDpCZWhzSkdMZm1ZS2NoeXRNaXB4TXhMSVBrVG9aeXBnS0FsZktPSHhJR3lPR2JkY3B0YWh2SXJmbUR6bWJwa01Y`,
+      Authorization: `Basic ${key}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
