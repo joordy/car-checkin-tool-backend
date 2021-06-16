@@ -4,19 +4,25 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 
-require('dotenv').config();
 const express = require('express');
 const app = express();
 const fetch = require('node-fetch');
 const sgMail = require('@sendgrid/mail');
 const moment = require('moment');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const cors = require('cors');
+sgMail.setApiKey('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');
 const stripe = require('stripe')(
   'sk_test_51IsTukJEAzd2OWuLk3FnSrJQnDxX3VuWZRtUIkCCvEBhK20GOantGHhar8kn1eqtYLtZ1qSX0hvVZ2lwyRWkCl5n002JbZmNr2'
 );
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST'],
+  })
+);
 
 // Get routes
 app.get('/api', getApi);
@@ -27,6 +33,7 @@ app.get('/api/verification', getVerification);
 app.get('/api/deposit', getDeposit);
 
 // Post routes
+app.post('/api', postApi);
 app.post('/api/reservations', postReservation);
 app.post('/api/order-details', postOrderDetails);
 app.post('/api/carIndexKey', postCarIndexKey);
@@ -41,15 +48,19 @@ app.post('/api/create-payment-intent', postCreatePaymentIntent);
 // //////////////////////////////////////
 
 async function getApi(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   const cityRef = db.collection('server').doc('loggedInUser');
   const doc = await cityRef.get();
   console.log(doc.data());
-  res.json({
-    status: 'succeeaad',
-  });
+  res.end(
+    JSON.stringify({
+      status: 'succeeaad',
+    })
+  );
 }
 
 async function getReservation(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   setTimeout(async () => {
     const cityRef = db.collection('server').doc('loggedInUser');
     const doc = await cityRef.get();
@@ -63,6 +74,7 @@ async function getReservation(req, res) {
 
 function getCarIndexKey(req, res) {
   // Receive chosen car index key
+  res.set('Access-Control-Allow-Origin', '*');
   setTimeout(async () => {
     const cityRef = db.collection('server').doc('carIndexKey1');
     const doc = await cityRef.get();
@@ -76,6 +88,7 @@ function getCarIndexKey(req, res) {
 
 function getOrderDetails(req, res) {
   // Receives selected car obj from signed in user
+  res.set('Access-Control-Allow-Origin', '*');
   setTimeout(async () => {
     const cityRef = db.collection('server').doc('reservation');
     const doc = await cityRef.get();
@@ -88,6 +101,7 @@ function getOrderDetails(req, res) {
 }
 
 function getVerification(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   setTimeout(async () => {
     const cityRef = db.collection('server').doc('reservation');
     const doc = await cityRef.get();
@@ -100,6 +114,7 @@ function getVerification(req, res) {
 }
 
 function getDeposit(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   setTimeout(async () => {
     const cityRef = db.collection('server').doc('reservation');
     const doc = await cityRef.get();
@@ -115,7 +130,18 @@ function getDeposit(req, res) {
 //            POST ROUTES             //
 // //////////////////////////////////////
 
+async function postApi(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
+  const cityRef = db.collection('server').doc('loggedInUser');
+  const doc = await cityRef.get();
+  console.log(doc.data());
+  res.json({
+    status: 'succeeaad',
+  });
+}
+
 async function postReservation(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   await db.collection('server').doc('loggedInUser').delete();
   await db.collection('server').doc('loggedInUser').set(req.body);
   console.log('DIT  IS DE JUISTE DAAAATA', req.body.firstName);
@@ -124,6 +150,7 @@ async function postReservation(req, res) {
 }
 
 async function postOrderDetails(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   await db.collection('server').doc('reservation').delete();
   await db.collection('server').doc('reservation').set(req.body);
   console.log('post this detail', req.body);
@@ -134,16 +161,19 @@ async function postOrderDetails(req, res) {
 
 async function postCarIndexKey(req, res) {
   // Save chosen car index key on server
+  res.set('Access-Control-Allow-Origin', '*');
   await db.collection('server').doc('carKeyIndex').delete();
   await db.collection('server').doc('carKeyIndex ').set(req.body);
   res.json('success');
 }
 
 async function postTestEnv(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   res.send('order details succesfully submitted');
 }
 
 async function postPayMethod(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
   if (req.body.carkey === 0) {
     await db
       .collection('server')
@@ -175,13 +205,38 @@ async function postPayMethod(req, res) {
   res.json('success');
 }
 
+async function postCreateCheckin(req, res) {
+  res.set('Access-Control-Allow-Origin', '*');
+  console.log('REQ BODY: ', req.body);
+
+  postData('https://api.passslot.com/v1/templates/5119469477953536/pass', req.body).then((data) => {
+    if (!data.errors) {
+      // Create message
+      const message = createMessage(req.body, data.serialNumber);
+      // Send e-mail with Sendgrid
+      sendEmail(message);
+      // Send status
+      res.send({
+        status: '200',
+        serialNumber: data.serialNumber,
+      });
+    } else {
+      res.send({
+        status: '404',
+        errors: data.errors,
+      });
+    }
+  });
+}
+
 async function postData(url, data) {
+  console.log('DEZE URL HEB IK NODIG', url);
   const response = await fetch(url, {
     method: 'POST',
     mode: 'cors',
     credentials: 'same-origin',
     headers: {
-      Authorization: `Basic ${process.env.WALLET_SECRET}`,
+      Authorization: `Basic QmVoc0pHTGZtWUtjaHl0TWlweE14TElQa1RvWnlwZ0tBbGZLT0h4SUd5T0diZGNwdGFodklyZm1Eem1icGtNWDpCZWhzSkdMZm1ZS2NoeXRNaXB4TXhMSVBrVG9aeXBnS0FsZktPSHhJR3lPR2JkY3B0YWh2SXJmbUR6bWJwa01Y`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
@@ -220,27 +275,6 @@ function sendEmail(message) {
       console.error(error);
       return error;
     });
-}
-
-async function postCreateCheckin(req, res) {
-  postData(process.env.WALLET_URL, req.body).then((data) => {
-    if (!data.errors) {
-      // Create message
-      const message = createMessage(req.body, data.serialNumber);
-      // Send e-mail with Sendgrid
-      sendEmail(message);
-      // Send status
-      res.send({
-        status: '200',
-        serialNumber: data.serialNumber,
-      });
-    } else {
-      res.send({
-        status: '404',
-        errors: data.errors,
-      });
-    }
-  });
 }
 
 // async function postCreateCheckin(req, res) {
